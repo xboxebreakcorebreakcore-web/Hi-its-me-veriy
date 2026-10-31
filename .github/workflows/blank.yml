@@ -1,0 +1,23 @@
+name: Build APK
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: if ls *.zip >/dev/null 2>&1; then unzip -o "$(ls *.zip | head -1)"; fi
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - run: |
+          if [ -d FloatOrb ]; then cd FloatOrb; fi
+          gradle assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FloatOrb-apk
+          path: "**/app/build/outputs/apk/debug/app-debug.apk"
+          
